@@ -55,7 +55,7 @@ export const StoreProvider = ({ children }) => {
       const data = await response.json();
       console.log('Data from API:', data);
 
-      // Extraer el array 'contacts' de la respuesta
+      
       const contacts = data.contacts;
 
       dispatch({ type: 'SET_CONTACTS', payload: contacts });

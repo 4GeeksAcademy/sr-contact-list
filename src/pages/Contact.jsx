@@ -9,7 +9,7 @@ const Contact = () => {
   return (
     <div className="container">
       <Link to="/add">
-        <button className="btn btn-success mb-3">Add new contact</button>
+        <button className="btn btn-success mb-3">add new contact</button>
       </Link>
       <div className="contact-list">
         {store.contacts &&

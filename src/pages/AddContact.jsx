@@ -5,27 +5,35 @@ import useGlobalReducer from '../hooks/useGlobalReducer';
 const AddContact = () => {
   const { addContact } = useGlobalReducer();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
+
+  const [formData, setFormData] = useState({
+    full_name: '',
+    address: '',
+    phone: '',
+    email: '',
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       const newContact = {
-        full_name: name,
-        address,
-        phone,
-        email,
+        ...formData,
         agenda_slug: 'Mickey',
       };
 
       console.log("Sending contact:", newContact);
 
-      const proxyUrl = 'http://localhost:8080/'; // URL del proxy local
       const apiUrl = 'https://playground.4geeks.com/contact/agenda/Mickey/contacts';
-      const response = await fetch(proxyUrl + apiUrl, { // URL modificada
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newContact),
@@ -52,12 +60,14 @@ const AddContact = () => {
       <h2>Add Contact</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="name">Name</label>
+          <label htmlFor="full_name">Name</label>
           <input
             type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            id="full_name"
+            name="full_name"
+            value={formData.full_name}
+            onChange={handleChange}
+            className="form-control" 
           />
         </div>
         <div className="form-group">
@@ -65,8 +75,10 @@ const AddContact = () => {
           <input
             type="text"
             id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            className="form-control"
           />
         </div>
         <div className="form-group">
@@ -74,8 +86,10 @@ const AddContact = () => {
           <input
             type="tel"
             id="phone"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            className="form-control" 
           />
         </div>
         <div className="form-group">
@@ -83,11 +97,13 @@ const AddContact = () => {
           <input
             type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="form-control" 
           />
         </div>
-        <button type="submit" className="btn btn-primary">Add Contact</button>
+        <button type="submit" className="btn btn-primary">save</button>
       </form>
     </div>
   );
