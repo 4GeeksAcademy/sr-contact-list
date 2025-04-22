@@ -31,7 +31,10 @@ const StoreContext = createContext();
 
 export const StoreProvider = ({ children }) => {
   const [store, dispatch] = useReducer(reducer, initialState);
-  const API_URL = 'https://playground.4geeks.com/contact/agendas/Mickey/';
+
+  const BASE_URL = 'https://playground.4geeks.com/contact';
+  const AGENDA_SLUG = 'saray_agenda_123';
+
 
   useEffect(() => {
     fetchContacts();
@@ -39,26 +42,14 @@ export const StoreProvider = ({ children }) => {
 
   const fetchContacts = async () => {
     try {
-      console.log('Fetching contacts from:', API_URL);
-      const response = await fetch(API_URL);
+      const response = await fetch(`${BASE_URL}/agendas/${AGENDA_SLUG}`);
       if (!response.ok) {
         const errorText = await response.text();
         console.error('API request failed:', response.status, errorText);
         return;
       }
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await response.text();
-        console.error('Response is not JSON:', text);
-        return;
-      }
       const data = await response.json();
-      console.log('Data from API:', data);
-
-      
-      const contacts = data.contacts;
-
-      dispatch({ type: 'SET_CONTACTS', payload: contacts });
+      dispatch({ type: 'SET_CONTACTS', payload: data.contacts });
     } catch (error) {
       console.error('Error fetching contacts:', error);
     }
@@ -66,30 +57,37 @@ export const StoreProvider = ({ children }) => {
 
   const addContact = async (contact) => {
     try {
-      console.log('Adding contact to:', API_URL);
-      const response = await fetch(API_URL, {
+      const contactWithAgenda = { ...contact, agenda_slug: AGENDA_SLUG };
+  
+      const response = await fetch(`${BASE_URL}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(contact),
+        body: JSON.stringify(contactWithAgenda),
       });
+      const data = await response.json();
       if (response.ok) {
         fetchContacts();
+      } else {
+        console.error('Error adding contact:', data);
       }
     } catch (error) {
-      console.error('Error adding contact:', error);
+      console.error('Fetch failed:', error);
     }
   };
+  
 
   const updateContact = async (id, updatedContact) => {
     try {
-      console.log('Updating contact at:', `${API_URL}${id}`);
-      const response = await fetch(`${API_URL}${id}`, {
+      const response = await fetch(`${BASE_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedContact),
       });
       if (response.ok) {
         fetchContacts();
+      } else {
+        const errorText = await response.text();
+        console.error('Error updating contact:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error updating contact:', error);
@@ -98,12 +96,14 @@ export const StoreProvider = ({ children }) => {
 
   const deleteContact = async (id) => {
     try {
-      console.log('Deleting contact at:', `${API_URL}${id}`);
-      const response = await fetch(`${API_URL}${id}`, {
+      const response = await fetch(`${BASE_URL}/${id}`, {
         method: 'DELETE',
       });
       if (response.ok) {
         fetchContacts();
+      } else {
+        const errorText = await response.text();
+        console.error('Error deleting contact:', response.status, errorText);
       }
     } catch (error) {
       console.error('Error deleting contact:', error);
